@@ -7,10 +7,10 @@ use PHPUnit\Framework\TestCase;
 class DataTest extends TestCase
 {
     protected $testClass;
-    protected $buyLinkSecret = 'Mv#-Z*nb7U%qYJwc-tsb&f?JEyUP5p5WK4*txCfT@336CuwZrZkdqc&K$zEZqnBP';
+    protected $buyLinkSecret = 'CREDENTIALS GO HERE';
     protected $expectedSignature = '3c23ab9b414317a313d1b08a5a7e9a029df4c6b8844e15600686262ad1550ec3';
     protected $expectedHmac = '69d3e406df927d664b3b90cf70eec990';
-    protected $secretKey = 'p?%v7Q3l9JT8~8(C3R4*';
+    protected $secretKey = 'CREDENTIALS GO HERE';
 
     protected function setUp(): void
     {
@@ -19,8 +19,8 @@ class DataTest extends TestCase
 
     public function testGenerateHash()
     {
-        $clientId = 250111206876;
-        $clientSecret = '=B6gcTl(4t8@D3yUM!TP';
+        $clientId = 'CREDENTIALS GO HERE - as INT';
+        $clientSecret = 'CREDENTIALS GO HERE';
         $time = '2020-03-27 14:13:15';
         $hash = $this->testClass->generateHash($clientId, $clientSecret, $time);
         $this->assertSame('92e0f73da3f21005a67d96b990489b23', $hash);
