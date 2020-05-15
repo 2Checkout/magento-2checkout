@@ -1,0 +1,120 @@
+<?php $_code = $this->getMethodCode(); ?>
+<div class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none;">
+    <div id="tcoApiForm">
+        <div id="wait"></div>
+        <div id="payment-form_skd">
+            <div class="form-group">
+                <label for="tco_name" class="label control-label">Name</label>
+                <input type="text" id="tco_name" class="field form-control">
+                <span class="validation-message" style="display: none">Card holder name is empty</span>
+            </div>
+            <input type="hidden" id="ess_token" name="ess_token"/>
+            <div id="card-element" style="min-height: 160px">
+                <!-- A TCO IFRAME will be inserted here. -->
+                <p class="please-wait" id="loadingInfo" style="padding-top: 40px;display:block ;text-align: center; ">
+                    <img src="http://localhost:90/magneto/skin/frontend/rwd/default/images/opc-ajax-loader.gif"
+                         alt="Loading next step..." style="float: none !important; margin: auto !important;"
+                         title="Loading next step..." class="v-middle"> Loading, please wait... </p>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+
+    #tcoApiForm #wait {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(180, 176, 176, 0.28);;
+        left: 0;
+        border-radius: 5px;
+        z-index: 99;
+        cursor: not-allowed;
+        display: none;
+    }
+
+    #tcoApiForm {
+        padding: 10px 15px;
+        position: relative;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 3px 3px 7px #DDD;
+        margin-left: 35px;
+        font-family: Helvetica, sans-serif;
+    }
+
+    @media (max-width: 768px) {
+        #tcoApiForm {
+            margin-left: 15px;
+        }
+    }
+
+    @media (max-width: 400px) {
+        #tcoApiForm {
+            padding: 10px;
+            margin-left: 0;
+            border: 0;
+            box-shadow: none;
+        }
+
+        .sp-methods .form-list {
+            padding-left: 0;
+        }
+    }
+
+    #tcoApiForm .form-group {
+        margin-bottom: 8px;
+        padding-right: 25px;
+    }
+
+    #tcoApiForm .sp-methods {
+        padding-left: 0;
+    }
+
+    #tcoApiForm .sp-methods .form-list {
+        padding-left: 0 !important;
+    }
+
+
+    #tcoApiForm input {
+        overflow: visible;
+        margin: 0;
+        font-family: inherit;
+        display: block;
+        width: 100%;
+        height: 42px;
+        padding: 10px 12px;
+        font-size: 18px;
+        font-weight: 400;
+        line-height: 22px;
+        color: #313131;
+        background-color: #FFF;
+        background-clip: padding-box;
+        border: 1px solid #CBCBCB;
+        border-radius: 3px;
+        transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        outline: 0;
+    }
+
+    .validation-message {
+        color: #D9534F;
+        font-size: 10px;
+        font-style: italic;
+        margin-top: 6px;
+        margin-bottom: -5px;
+        display: block;
+        line-height: 1;
+    }
+
+    #tcoApiForm label {
+        display: inline-block !important;
+        margin-bottom: 9px;
+        color: #313131;
+        font-size: 14px;
+        font-weight: 300;
+        line-height: 17px;
+        font-family: Helvetica, sans-serif;
+    }
+
+</style>
