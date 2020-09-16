@@ -123,7 +123,7 @@ class Twocheckout_Tco_Model_Checkout extends Mage_Payment_Model_Method_Abstract
 
         $orderIncrementId = $this->getCheckout()->getLastRealOrderId();
         return $this->getSaleOrder()
-          ->loadByIncrementId($orderIncrementId);
+            ->loadByIncrementId($orderIncrementId);
     }
 
     /**
@@ -194,7 +194,7 @@ class Twocheckout_Tco_Model_Checkout extends Mage_Payment_Model_Method_Abstract
         //get coupons
         if ($coupon) {
             $lineItemTotal -= trim(round($order->getBase_discount_amount(), 2),
-              '-');
+                '-');
         }
         return floatval($lineItemTotal);
     }
@@ -212,55 +212,70 @@ class Twocheckout_Tco_Model_Checkout extends Mage_Payment_Model_Method_Abstract
         $inlineLinkParams = [];
 
         $billingAddressData = [
-          'name' => $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname(),
-          'phone' => $billingAddress->getTelephone(),
-          'country' => $billingAddress->getCountry(),
-          'state' => $billingAddress->getRegion(),
-          'email' => $order->getData('customer_email'),
-          'address' => $billingAddress->getStreet1(),
-          'address2' => !empty($billingAddress->getStreet2()) ? $billingAddress->getStreet2() : '',
-          'city' => $billingAddress->getCity(),
-          'zip' => $billingAddress->getPostcode(),
+            'name' => $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname(),
+            'phone' => $billingAddress->getTelephone(),
+            'country' => $billingAddress->getCountry(),
+            'state' => $billingAddress->getRegion(),
+            'email' => $order->getData('customer_email'),
+            'address' => $billingAddress->getStreet1(),
+            'address2' => !empty($billingAddress->getStreet2()) ? $billingAddress->getStreet2() : '',
+            'city' => $billingAddress->getCity(),
+            'zip' => $billingAddress->getPostcode(),
         ];
 
-        $inlineLinkParams['billing_address'] = json_encode($billingAddressData);
 
         $shippingAddressData = [
-          'ship-name' => $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname(),
-          'ship-country' =>  $billingAddress->getCountry(),
-          'ship-state' => $billingAddress->getRegion(),
-          'ship-city' => $billingAddress->getCity(),
-          'ship-email' => $order->getData('customer_email'),
-          'ship-address' =>  $billingAddress->getStreet1(),
-          'ship-address2' => !empty($billingAddress->getStreet2()) ? $billingAddress->getStreet2() : '',
+            'ship-name' => $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname(),
+            'ship-country' =>  $billingAddress->getCountry(),
+            'ship-state' => $billingAddress->getRegion(),
+            'ship-city' => $billingAddress->getCity(),
+            'ship-email' => $order->getData('customer_email'),
+            'ship-address' =>  $billingAddress->getStreet1(),
+            'ship-address2' => !empty($billingAddress->getStreet2()) ? $billingAddress->getStreet2() : '',
         ];
 
-        $inlineLinkParams['shipping_address'] = json_encode($shippingAddressData);
 
         $productData[] = [
-          'type' => 'PRODUCT',
-          'name' => 'Cart_' . $orderId,
-          'price' => $this->checkTotal(),
-          'tangible' => 0,
-          'qty' => 1,
+            'type' => 'PRODUCT',
+            'name' => 'Cart_' . $orderId,
+            'price' => $this->checkTotal(),
+            'tangible' => 0,
+            'quantity' => 1,
         ];
 
-        $inlineLinkParams['products'] = json_encode($productData);
-        $inlineLinkParams['currency'] = strtolower($order->getOrderCurrencyCode());
-        $inlineLinkParams['language'] = substr(Mage::app()
-          ->getLocale()
-          ->getLocaleCode(), 0, 2);
+        $inlineLinkParams['products'] = $productData;
+        $inlineLinkParams['merchant'] = $this->getMerchantId();
 
-        $inlineLinkParams['url_data'] = json_encode([
-          'type' => 'redirect',
-          'url' => Mage::getUrl('tco/response'),
-        ]);
-        $inlineLinkParams['test'] = ($this->getConfigData('demo') == '1') ? '1' : '0';
+        $inlineLinkParams['currency'] = strtoupper($order->getOrderCurrencyCode());
+        $inlineLinkParams['language'] = substr(Mage::app()
+            ->getLocale()
+            ->getLocaleCode(), 0, 2);
+
+        $inlineLinkParams['return-method'] = [
+            'type' => 'redirect',
+            'url' => Mage::getUrl('tco/response'),
+        ];
+
+        $inlineLinkParams['test'] = ($this->getConfigData('demo') == '1') ? 1 : 0;
         $inlineLinkParams['order-ext-ref'] = $orderId;
-        $inlineLinkParams['return-url'] = $this->getOrderPlaceRedirectUrl();
         $inlineLinkParams['customer-ext-ref'] = $order->getData('customer_email');
         $inlineLinkParams['src'] = 'MAGENTO1';
         $inlineLinkParams['mode'] = 'DYNAMIC';
+        $inlineLinkParams['dynamic'] = '1';
+
+        $inlineLinkParams = array_merge($inlineLinkParams, $billingAddressData);
+        $inlineLinkParams = array_merge($inlineLinkParams, $shippingAddressData);
+
+        $inlineLinkParams['signature'] = $this->getHelper()->getInlineSignature(
+            $this->getConfigData('merchant_id'),
+            $this->getConfigData('secret_word'),
+            $inlineLinkParams
+        );
+        
+        $inlineLinkParams['billing_address'] = json_encode($billingAddressData);
+        $inlineLinkParams['shipping_address'] = json_encode($shippingAddressData);
+        $inlineLinkParams['products'] = json_encode($inlineLinkParams['products']);
+        $inlineLinkParams['return-method'] = json_encode($inlineLinkParams['return-method']);
 
         return $inlineLinkParams;
     }
@@ -305,25 +320,27 @@ class Twocheckout_Tco_Model_Checkout extends Mage_Payment_Model_Method_Abstract
         $buyLinkParams['tangible'] = 0;
         $buyLinkParams['src'] = 'MAGENTO1';
 
-        $buyLinkParams['return-url'] = $this->getOrderPlaceRedirectUrl();
+
         // url NEEDS a protocol(http or https)
         $buyLinkParams['return-type'] = 'redirect';
+        $buyLinkParams['return-url'] = $this->getOrderPlaceRedirectUrl();
         $buyLinkParams['expiration'] = time() + (3600 * 5);
         $buyLinkParams['order-ext-ref'] = $orderId;
         $buyLinkParams['item-ext-ref'] = date('YmdHis');
         $buyLinkParams['customer-ext-ref'] = $order->getData('customer_email');
         $buyLinkParams['currency'] = strtolower($order->getOrderCurrencyCode());
         $buyLinkParams['language'] = substr(Mage::app()
-          ->getLocale()
-          ->getLocaleCode(), 0, 2);
+            ->getLocale()
+            ->getLocaleCode(), 0, 2);
         $buyLinkParams['test'] = ($this->getConfigData('demo') == '1') ? '1' : '0';
         // sid in this case is the merchant code
         $buyLinkParams['merchant'] = $this->getMerchantId();
         $buyLinkParams['dynamic'] = 1;
         $buyLinkParams['signature'] = $this->getHelper()->generateSignature(
-          $buyLinkParams,
-          $this->getConfigData('secret_word')
+            $buyLinkParams,
+            $this->getConfigData('secret_word')
         );
+
 
         return $buyLinkParams;
     }

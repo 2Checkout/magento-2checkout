@@ -249,11 +249,21 @@ class Twocheckout_Tco_NotificationController extends Mage_Core_Controller_Front_
                     if (Mage::getStoreConfig('payment/tco/invoice_on_order') == '1') {
                         $this->_processInvoice($params);
                     }
-                    $this
-                      ->_order
-                      ->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true)
-                      ->addStatusHistoryComment(sprintf('IPN ORDERSTATUS : "%s". 2Checkout marked the order as complete. You may issue an invoice if one was not already issued.',
-                        "COMPLETE"));
+
+                    // if all products are virtual then mark the order as complete
+                    // since the admin is unable to ship it, he's also unable to
+                    // mark the order in the appropiate status
+                    if($this->_areAllProductsVirtual()) {
+                        $this->_order->setState(Mage_Sales_Model_Order::STATE_COMPLETE, true)
+                          ->addStatusHistoryComment(sprintf('IPN ORDERSTATUS : "%s". 2Checkout marked the order as complete. The order contains only virtual products so it was marked as complete.',
+                            "COMPLETE"));
+                    } else {
+                        $this
+                          ->_order
+                          ->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true)
+                          ->addStatusHistoryComment(sprintf('IPN ORDERSTATUS : "%s". 2Checkout marked the order as complete. You may issue an invoice if one was not already issued.',
+                            "COMPLETE"));
+                    }
                     break;
 
                 case self::ORDER_STATUS_REFUND:
@@ -269,6 +279,23 @@ class Twocheckout_Tco_NotificationController extends Mage_Core_Controller_Front_
 
             $this->_order->save();
         }
+    }
+
+    /**
+     * @return bool
+     */
+    private function _areAllProductsVirtual()
+    {
+        // if any of the products bought is not virtual
+        // then the admin can ship them and properly change the order status
+        // in case they are we must mark the order as complete
+        foreach ($this->_order->getAllItems() as $item) {
+            if (!$item->getProduct()->isVirtual()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

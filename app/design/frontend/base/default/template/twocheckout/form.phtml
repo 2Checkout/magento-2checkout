@@ -1,26 +1,20 @@
-<?php $_code = $this->getMethodCode(); ?>
+<?php $_code = $this->getMethodCode();
+$loadingImage = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB) . 'skin/frontend/rwd/default/images/opc-ajax-loader.gif'; ?>
 <div class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none;">
     <div id="tcoApiForm">
         <div id="wait"></div>
         <div id="payment-form_skd">
-            <div class="form-group">
-                <label for="tco_name" class="label control-label">Name</label>
-                <input type="text" id="tco_name" class="field form-control">
-                <span class="validation-message" style="display: none">Card holder name is empty</span>
-            </div>
             <input type="hidden" id="ess_token" name="ess_token"/>
             <div id="card-element" style="min-height: 160px">
                 <!-- A TCO IFRAME will be inserted here. -->
                 <p class="please-wait" id="loadingInfo" style="padding-top: 40px;display:block ;text-align: center; ">
-                    <img src="http://localhost:90/magneto/skin/frontend/rwd/default/images/opc-ajax-loader.gif"
-                         alt="Loading next step..." style="float: none !important; margin: auto !important;"
-                         title="Loading next step..." class="v-middle"> Loading, please wait... </p>
+                    <img src="<?php echo $loadingImage; ?>"
+                         style="float: none !important; margin: auto !important;" class="v-middle"> Loading, please wait... </p>
             </div>
         </div>
     </div>
 </div>
 <style>
-
     #tcoApiForm #wait {
         position: absolute;
         top: 0;

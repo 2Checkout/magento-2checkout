@@ -20,5 +20,5 @@ class Twocheckout_Api_Block_Info extends Mage_Payment_Block_Info
     {
         return $this->getInfo()->getMethodInstance()->getCode();
     }
-
+  
 }

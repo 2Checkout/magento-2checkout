@@ -7,27 +7,27 @@ class Twocheckout_Tco_Helper_Data extends Mage_Core_Helper_Abstract
      * @var array
      */
     private $_signParams = [
-      'return-url',
-      'return-type',
-      'expiration',
-      'order-ext-ref',
-      'item-ext-ref',
-      'lock',
-      'cust-params',
-      'customer-ref',
-      'customer-ext-ref',
-      'currency',
-      'prod',
-      'price',
-      'qty',
-      'tangible',
-      'type',
-      'opt',
-      'coupon',
-      'description',
-      'recurrence',
-      'duration',
-      'renewal-price',
+        'return-url',
+        'return-type',
+        'expiration',
+        'order-ext-ref',
+        'item-ext-ref',
+        'lock',
+        'cust-params',
+        'customer-ref',
+        'customer-ext-ref',
+        'currency',
+        'prod',
+        'price',
+        'qty',
+        'tangible',
+        'type',
+        'opt',
+        'coupon',
+        'description',
+        'recurrence',
+        'duration',
+        'renewal-price',
     ];
 
     /**
@@ -38,9 +38,9 @@ class Twocheckout_Tco_Helper_Data extends Mage_Core_Helper_Abstract
      * @return string
      */
     public function generateSignature(
-      $params,
-      $secretWord,
-      $fromResponse = false
+        $params,
+        $secretWord,
+        $fromResponse = false
     ) {
 
         if (!$fromResponse) {
@@ -115,7 +115,7 @@ class Twocheckout_Tco_Helper_Data extends Mage_Core_Helper_Abstract
         $headers[] = 'Content-Type: application/json';
         $headers[] = 'Accept: application/json';
         $headers[] = sprintf('X-Avangate-Authentication: code="%s" date="%s" hash="%s"',
-          $merchantId, $gmtDate, $hash);
+            $merchantId, $gmtDate, $hash);
 
         return $headers;
     }
@@ -131,8 +131,89 @@ class Twocheckout_Tco_Helper_Data extends Mage_Core_Helper_Abstract
     public function generateHash($vendorCode, $secret, $requestDateTime)
     {
         return hash_hmac('md5',
-          sprintf('%s%s%s%s', strlen($vendorCode), $vendorCode,
-            strlen($requestDateTime), $requestDateTime), $secret);
+            sprintf('%s%s%s%s', strlen($vendorCode), $vendorCode,
+                strlen($requestDateTime), $requestDateTime), $secret);
     }
+
+    /**
+     * @param $sub
+     * @param $iat
+     * @param $exp
+     * @param $buyLinkSecretWord
+     *
+     * @return string
+     */
+    public function generateJWTToken($sub, $iat, $exp, $buyLinkSecretWord)
+    {
+        $header = $this->encode(json_encode(['alg' => 'HS512', 'typ' => 'JWT']));
+        $payload = $this->encode(json_encode(['sub' => $sub, 'iat' => $iat, 'exp' => $exp]));
+        $signature = $this->encode(
+            hash_hmac('sha512', "$header.$payload", $buyLinkSecretWord, true)
+        );
+
+        return implode('.', [
+            $header,
+            $payload,
+            $signature
+        ]);
+    }
+
+    /**
+     * @param $data
+     *
+     * @return string|string[]
+     */
+    private function encode($data)
+    {
+        return str_replace('=', '', strtr(base64_encode($data), '+/', '-_'));
+    }
+
+    /**
+     * @param $merchantId
+     * @param $buyLinkSecretWord
+     * @param $payload
+     * @return mixed
+     * @throws Exception
+     */
+
+    public function getInlineSignature($merchantId, $buyLinkSecretWord, $payload)
+    {
+        $jwtToken = $this->generateJWTToken(
+            $merchantId,
+            time(),
+            time() + 3600,
+            $buyLinkSecretWord
+        );
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, [
+            CURLOPT_URL            => "https://secure.2checkout.com/checkout/api/encrypt/generate/signature",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => [
+                'content-type: application/json',
+                'cache-control: no-cache',
+                'merchant-token: ' . $jwtToken,
+            ],
+        ]);
+        $response = curl_exec($curl);
+        $err      = curl_error($curl);
+        curl_close($curl);
+
+        if ($err) {
+            throw new Exception(sprintf('Unable to get proper response from signature generation API. In file %s at line %s', __FILE__, __LINE__));
+        }
+
+        $response = json_decode($response, true);
+        if (JSON_ERROR_NONE !== json_last_error() || !isset($response['signature'])) {
+            throw new Exception(sprintf('Unable to get proper response from signature generation API. Signature not set. In file %s at line %s', __FILE__, __LINE__));
+        }
+
+        return $response['signature'];
+
+    }
+
 
 }

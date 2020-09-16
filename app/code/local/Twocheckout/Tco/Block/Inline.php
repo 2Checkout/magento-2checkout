@@ -3,16 +3,16 @@
 class Twocheckout_Tco_Block_Inline extends Mage_Core_Block_Abstract
 {
 
-    /**
-     * @return string
-     */
-    protected function _toHtml()
-    {
-        $tco = Mage::getModel('tco/checkout');
+	/**
+	 * @return string
+	 */
+	protected function _toHtml()
+	{
+		$tco = Mage::getModel('tco/checkout');
 
-        $formFields = $tco->getInlineFormFields();
+		$formFields = $tco->getInlineFormFields();
 
-        return '<script> 
+		return '<script> 
   (function (document, src, libName, config) {
       var script             = document.createElement(\'script\');
       script.src             = src;
@@ -26,22 +26,26 @@ class Twocheckout_Tco_Block_Inline extends Mage_Core_Block_Abstract
           }
             window[libName].register();
             TwoCoInlineCart.setup.setMerchant(' . $tco->getMerchantId() . ');
-            TwoCoInlineCart.setup.setMode("DYNAMIC");
+            TwoCoInlineCart.setup.setMode("' . $formFields['mode'] . '");
             TwoCoInlineCart.register();
+           
             
             TwoCoInlineCart.cart.setCurrency("' . $formFields['currency'] . '");
             TwoCoInlineCart.cart.setLanguage("' . $formFields['language'] . '");
-            TwoCoInlineCart.cart.setReturnMethod(' . $formFields['url_data'] . ');
+            TwoCoInlineCart.cart.setReturnMethod(' . $formFields['return-method'] . ');
             TwoCoInlineCart.cart.setTest("' . $formFields['test'] . '");
             TwoCoInlineCart.cart.setOrderExternalRef("' . $formFields['order-ext-ref'] . '");
             TwoCoInlineCart.cart.setExternalCustomerReference("' . $formFields['customer-ext-ref'] . '");
-            TwoCoInlineCart.cart.setSource("MAGENTO1");
+            TwoCoInlineCart.cart.setSource("' . $formFields['src'] . '");
+            TwoCoInlineCart.cart.setAutoAdvance(true);
             
             TwoCoInlineCart.products.removeAll();
             TwoCoInlineCart.products.addMany(' . $formFields['products'] . '); 
             TwoCoInlineCart.billing.setData(' . $formFields['billing_address'] . ');
             TwoCoInlineCart.shipping.setData(' . $formFields['shipping_address'] . ');
+            TwoCoInlineCart.cart.setSignature("' . $formFields['signature'] . '");
             TwoCoInlineCart.cart.checkout();
+            
       };
       firstScriptElement.parentNode.insertBefore(script, firstScriptElement);
   })(document, 
@@ -50,6 +54,6 @@ class Twocheckout_Tco_Block_Inline extends Mage_Core_Block_Abstract
   {"app":{"merchant":"' . $tco->getMerchantId() . '"},"cart":{"host":"https:\/\/secure.2checkout.com"}}
   );
 </script>';
-    }
+	}
 
 }

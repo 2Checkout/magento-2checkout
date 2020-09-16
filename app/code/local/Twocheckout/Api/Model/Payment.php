@@ -91,16 +91,26 @@ class Twocheckout_Api_Model_Payment extends Mage_Payment_Model_Method_Abstract
                 'PaymentDetails'            => $this->getPaymentDetails($token, $currency),
             ];
 
-            if ($this->getTestMode()) {
-                $orderParams['test'] = 1;
-            }
-
             $apiResponse = $this->_tcoApi->call('orders', $orderParams);
+
             if (!$apiResponse) { // we dont get any response from 2co
-                Mage::throwException($mageHelper->__('Your payment could not be processed! Please try again later'));
+                Mage::throwException($mageHelper->__('Your payment could not be processed! Please refresh the page and try again later'));
             }
-            if (isset($apiResponse['error_code']) && !empty($apiResponse['error_code'])) { // we get an response with ERRORS from 2co
-                Mage::throwException($mageHelper->__($apiResponse['message'] . '. Please refresh the page and try again!'));
+            if (isset($apiResponse['error_code'])) {
+                Mage::throwException($mageHelper->__('Unable to proceed. Please refresh the page try again.'));
+            }
+            if (isset($apiResponse['Errors']) && !empty($apiResponse['Errors'])) { // we get an response with ERRORS from 2co
+                $errorMessage = '';
+                foreach ($apiResponse['Errors'] as $key => $value) {
+                    $search = "/<[\s\S]+?>/"; // remove html tags
+                    $value = str_replace('<li>', PHP_EOL . ' - ', $value);
+                    $error = <<<EOT
+$value
+EOT;
+                    $error = str_replace('"', '\'', $error);
+                    $errorMessage = preg_replace($search, PHP_EOL, $error);
+                }
+                Mage::throwException($errorMessage);
             }
             try {
                 // first we check if we have to redirect to 3dSecure
@@ -161,7 +171,7 @@ class Twocheckout_Api_Model_Payment extends Mage_Payment_Model_Method_Abstract
     private function getPaymentDetails($token, $currency)
     {
         return [
-            'Type'          => 'EES_TOKEN_PAYMENT',
+            'Type'          => $this->getTestMode() == 1 ? 'TEST' : 'EES_TOKEN_PAYMENT',
             'Currency'      => $currency,
             'CustomerIP'    => Mage::helper('core/http')->getRemoteAddr(),
             'PaymentMethod' => [
