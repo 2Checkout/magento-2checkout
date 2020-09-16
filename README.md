@@ -17,7 +17,7 @@
 
 #### Magento Settings
 
-1. Download the 2Checkout payment module from https://github.com/2Checkout/magento2-2checkout
+1. Download the 2Checkout payment module from https://github.com/2Checkout/magento-2checkout
         
     1a. Under the 'Releases' you can find the latest release.
         
