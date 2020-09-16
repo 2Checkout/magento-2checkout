@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<config>
+    <sections>
+        <payment>
+          <groups>
+                  <tco translate="label">
+                    <label>2Checkout Hosted</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>0</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </active>
+                        <invoice_on_fraud translate="label">
+                            <label>Invoice automatically after 2Checkout fraud approval <![CDATA[<span style="color: red;">*<span>]]></label>
+                            <comment><![CDATA[
+<span style="color: red;">IMPORTANT: At least one of the options marked with *(asterix) must be set to "Yes" in order to do an online refund. A regular, offline refund, can still be issued
+without having either of the options set to yes.
+</span><br>
+]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>3</sort_order>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </invoice_on_fraud>
+                        <invoice_on_order translate="label">
+                            <label>Invoice automatically after 2checkout marks the order as complete <![CDATA[<span style="color: red;">*<span>]]></label>
+                            <comment><![CDATA[
+<span style="color: red;">IMPORTANT: At least one of the options marked with *(asterix) must be set to "Yes" in order to do an online refund. A regular, offline refund, can still be issued
+without having either of the options set to yes.<br>
+</span><br>
+]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>4</sort_order>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </invoice_on_order>
+
+                        <sid translate="label">
+                            <label>2Checkout Merchant Id</label>
+                            <comment>**Required**</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </sid>
+                        <secret_word translate="label">
+                            <label>Buy link secret word</label>
+                            <comment>**Required** Please enter the same value found on your 2Checkout Site Integrations page.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </secret_word>
+                        <secret_key translate="label">
+                            <label>Secret key</label>
+                            <comment>**Required** Please enter the same value found on your 2Checkout Site Integrations page.</comment>
+                            <frontend_type>password</frontend_type>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </secret_key>
+                        <refund translate="label">
+                            <label>Live Refunds</label>
+                            <comment>**IMPORTANT** Select 'Yes' to enable live refunds through 2Checkout when sending credit memos in Magento. This will actually issue refunds for the credit memo amount.</comment>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>10</sort_order>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </refund>
+                        <inline translate="label">
+                            <label>2Checkout Inline Mode</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>11</sort_order>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </inline>
+                        <demo translate="label">
+                            <label>2Checkout Demo Mode</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>12</sort_order>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </demo>
+                        <allowspecific translate="label">
+                            <label>Payment Applicable From</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>13</sort_order>
+                            <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </allowspecific>
+                        <specificcountry translate="label">
+                            <label>Countries Payment Applicable From</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>14</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </specificcountry>
+                        <checkout_language translate="label">
+                            <label>Checkout Language Code</label>
+                            <comment>**Defaults to English** Enter your preferred 2Checkout language code to translate the checkout page.
+                                <![CDATA[<a href="https://www.2checkout.com/blog/knowledge-base/merchants/tech-support/multi-language-options/do-you-offer-any-languages-other-than-english/">2Checkout Language Code Reference</a>]]>
+                            </comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>15</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </checkout_language>
+                        <redirect_message translate="label">
+                            <label>Redirect Message</label>
+                            <comment>You will be redirected to 2Checkout in a few seconds.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>16</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </redirect_message>
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>17</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </sort_order>
+                    </fields>
+                </tco>
+          </groups>
+        </payment>
+    </sections>
+</config>
