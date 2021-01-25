@@ -75,11 +75,11 @@ class CheckoutTest extends TestCase
         $formFields = $this->testClass->getInlineFormFields();
 
         $this->assertJson(
-          '{"name":"John Doe","phone":756852919,"country":"US","state":"Alabama","email":"test@test.com","address":"Alabama US","city":"Alabama","zip":null}',
+          '{"name":"John Doe","phone":756852919,"country":"US","state":"Alabama","email":"test@test.com","address":"Alabama US","city":"Alabama","zip":null,"company-name":"test-company"}',
           $formFields['billing_address']
           );
 
-        $this->assertEquals(8, count(json_decode($formFields['billing_address'], true)));
+        $this->assertEquals(10, count(json_decode($formFields['billing_address'], true)));
 
         $this->assertJson(
           '{"ship-name":"John Doe","ship-country":"US","phone": "123456789","ship-state":"Alabama","ship-city":"Alabama","ship-email":"test@test.com","ship-address":"Alabama US","ship-address2":""}',
@@ -100,7 +100,7 @@ class CheckoutTest extends TestCase
 
         $this->assertJson(
           '{"type":"redirect","url":"http:\/\/magento1.local\/tco\/response\/"}',
-          $formFields['url_data']
+          $formFields['return-method']
         );
 
         $products = json_decode($formFields['products'], true);
@@ -111,7 +111,7 @@ class CheckoutTest extends TestCase
             $this->assertEquals('PRODUCT', $product['type']);
             $this->assertStringStartsWith('Cart_', $product['name']);
             $this->assertEquals(false, $product['tangible']);
-            $this->assertEquals(1, $product['qty']);
+            $this->assertEquals(1, $product['quantity']);
         }
 
         $this->assertEquals('MAGENTO1', $formFields['src']);
@@ -237,6 +237,7 @@ class CheckoutTest extends TestCase
             'getStreet1',
             'getCity',
             'getStreet2',
+            'getCompany',
           ])
           ->getMock();
 
@@ -269,6 +270,10 @@ class CheckoutTest extends TestCase
           ->expects($this->any())
           ->method('getCity')
           ->willReturn('Alabama');
+        $billingAddress
+          ->expects($this->any())
+          ->method('getCompany')
+          ->willReturn('test-company');
         $billingAddress
           ->expects($this->any())
           ->method('getStreet2')

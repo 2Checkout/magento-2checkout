@@ -199,9 +199,10 @@ class Twocheckout_Tco_Model_Checkout extends Mage_Payment_Model_Method_Abstract
         return floatval($lineItemTotal);
     }
 
-    /**
-     * @return array
-     */
+	/**
+	 * @return array
+	 * @throws \Exception
+	 */
     public function getInlineFormFields()
     {
         $orderId = $this->getCheckout()->getLastRealOrderId();
@@ -218,13 +219,14 @@ class Twocheckout_Tco_Model_Checkout extends Mage_Payment_Model_Method_Abstract
             'state' => $billingAddress->getRegion(),
             'email' => $order->getData('customer_email'),
             'address' => $billingAddress->getStreet1(),
+	        'company-name' => $billingAddress->getCompany(),
             'address2' => !empty($billingAddress->getStreet2()) ? $billingAddress->getStreet2() : '',
             'city' => $billingAddress->getCity(),
             'zip' => $billingAddress->getPostcode(),
         ];
+	    $inlineLinkParams['company-name'] = $billingAddress->getCompany();
 
-
-        $shippingAddressData = [
+	    $shippingAddressData = [
             'ship-name' => $billingAddress->getFirstname() . ' ' . $billingAddress->getLastname(),
             'ship-country' =>  $billingAddress->getCountry(),
             'ship-state' => $billingAddress->getRegion(),
@@ -233,7 +235,6 @@ class Twocheckout_Tco_Model_Checkout extends Mage_Payment_Model_Method_Abstract
             'ship-address' =>  $billingAddress->getStreet1(),
             'ship-address2' => !empty($billingAddress->getStreet2()) ? $billingAddress->getStreet2() : '',
         ];
-
 
         $productData[] = [
             'type' => 'PRODUCT',
@@ -271,7 +272,7 @@ class Twocheckout_Tco_Model_Checkout extends Mage_Payment_Model_Method_Abstract
             $this->getConfigData('secret_word'),
             $inlineLinkParams
         );
-        
+
         $inlineLinkParams['billing_address'] = json_encode($billingAddressData);
         $inlineLinkParams['shipping_address'] = json_encode($shippingAddressData);
         $inlineLinkParams['products'] = json_encode($inlineLinkParams['products']);
@@ -279,7 +280,6 @@ class Twocheckout_Tco_Model_Checkout extends Mage_Payment_Model_Method_Abstract
 
         return $inlineLinkParams;
     }
-
 
     /**
      * @return array
@@ -296,6 +296,7 @@ class Twocheckout_Tco_Model_Checkout extends Mage_Payment_Model_Method_Abstract
         $buyLinkParams['phone'] = $billingAddress->getTelephone();
         $buyLinkParams['country'] = $billingAddress->getCountry();
         $buyLinkParams['state'] = $billingAddress->getRegion();
+        $buyLinkParams['company-name'] = $billingAddress->getCompany();
         $buyLinkParams['email'] = $order->getData('customer_email');
         $buyLinkParams['address'] = $billingAddress->getStreet1();
         if (!empty($billingAddress->getStreet2())) {
@@ -320,7 +321,6 @@ class Twocheckout_Tco_Model_Checkout extends Mage_Payment_Model_Method_Abstract
         $buyLinkParams['tangible'] = 0;
         $buyLinkParams['src'] = 'MAGENTO1';
 
-
         // url NEEDS a protocol(http or https)
         $buyLinkParams['return-type'] = 'redirect';
         $buyLinkParams['return-url'] = $this->getOrderPlaceRedirectUrl();
@@ -340,7 +340,6 @@ class Twocheckout_Tco_Model_Checkout extends Mage_Payment_Model_Method_Abstract
             $buyLinkParams,
             $this->getConfigData('secret_word')
         );
-
 
         return $buyLinkParams;
     }
